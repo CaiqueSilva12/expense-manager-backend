@@ -14,6 +14,7 @@ class TransactionModel {
       {
         user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
         type: { type: String, enum: ['revenue', 'expense'], required: true },
+        category: { type: String },
         amount: { type: Number, required: true },
         description: { type: String, required: true },
         month: { type: Number, required: true },
