@@ -2,10 +2,10 @@
   "name": "server",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --exec ts-node src/index.ts",
+    "start": "node src/index.js",
     "dev": "nodemon src/index.ts",
     "build": "tsc"
   },
