@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 class Database {
   async connect(): Promise<void> {
     try {
-      await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/expensedb');
+      await mongoose.connect(process.env.MONGODB_URI);
       console.log('Conexão ao MongoDB estabelecida!');
     } catch (error) {
       console.error('Erro ao conectar ao MongoDB:', error);
