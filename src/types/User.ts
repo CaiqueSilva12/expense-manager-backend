@@ -11,4 +11,5 @@ export interface IUserLoginResponse {
   id: string;
   email: string;
   name: string;
+  balance: number;
 }

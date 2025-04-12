@@ -1,19 +1,15 @@
 import mongoose from 'mongoose';
 
 class Database {
-  static async connect() {
+  async connect(): Promise<void> {
     try {
-      const uri = process.env.MONGODB_URI;
-      if (!uri) {
-        throw new Error('MONGODB_URI environment variable is not defined');
-      }
-      await mongoose.connect(uri);
-      console.log('Connected to MongoDB');
+      await mongoose.connect(process.env.MONGODB_URI);
+      console.log('Conexão ao MongoDB estabelecida!');
     } catch (error) {
-      console.error('Error connecting to MongoDB:', error);
-      throw error;
+      console.error('Erro ao conectar ao MongoDB:', error);
+      process.exit(1);
     }
   }
 }
 
-export default Database;
+export default new Database();

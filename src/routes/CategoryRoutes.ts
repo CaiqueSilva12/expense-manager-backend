@@ -1,13 +1,20 @@
 import { Router } from 'express';
-import { CategoryController } from '../controllers/CategoryController';
+import CategoryController from '../controllers/CategoryController';
 import { authenticateToken } from '../middlewares/authMiddleware';
 
-const router = Router();
+class CategoryRoutes {
+  public router: Router;
 
-router.post('/', authenticateToken, CategoryController.createCategory);
-router.get('/', authenticateToken, CategoryController.getCategories);
-router.get('/:id', authenticateToken, CategoryController.getCategoryById);
-router.put('/:id', authenticateToken, CategoryController.updateCategory);
-router.delete('/:id', authenticateToken, CategoryController.deleteCategory);
+  constructor() {
+    this.router = Router();
+    this.initializeRoutes();
+  }
 
-export default router; 
+  private initializeRoutes(): void {
+    this.router.post('/categories', authenticateToken, CategoryController.createCategory);
+    this.router.get('/categories/:userId', authenticateToken, CategoryController.getUserCategories);
+    this.router.put('/categories/:categoryId', authenticateToken, CategoryController.updateCategoryBudget);
+  }
+}
+
+export default new CategoryRoutes().router; 
