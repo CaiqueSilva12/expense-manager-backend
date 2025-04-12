@@ -1,5 +1,5 @@
-import { Transaction } from '../models/TransactionModel';
-import { User } from '../models/UserModel';
+import Transaction from '../models/TransactionModel';
+import User from '../models/UserModel';
 import { ITransaction } from '../types/Transaction';
 import mongoose from 'mongoose';
 
