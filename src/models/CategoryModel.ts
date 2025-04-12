@@ -13,8 +13,8 @@ class CategoryModel {
     this.schema = new Schema<ICategoryDocument>(
       {
         name: { type: String, required: true },
-        budget: { type: Number, required: true },
-        userId: { type: mongoose.Types.ObjectId, required: true, ref: 'User' },
+        user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+        type: { type: String, enum: ['revenue', 'expense'], required: true }
       },
       {
         timestamps: true,
@@ -29,8 +29,8 @@ class CategoryModel {
     return category;
   }
 
-  async findByUserId(userId: mongoose.Types.ObjectId): Promise<ICategoryDocument[]> {
-    const categories = await this.model.find({ userId });
+  async getUserCategories(userId: mongoose.Types.ObjectId): Promise<ICategoryDocument[]> {
+    const categories = await this.model.find({ user: userId });
     return categories;
   }
 

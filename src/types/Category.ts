@@ -1,5 +1,7 @@
+import mongoose from 'mongoose';
+
 export interface ICategory {
   name: string;
-  budget: number;
-  userId: string;
+  user: mongoose.Types.ObjectId;
+  type: 'revenue' | 'expense';
 } 

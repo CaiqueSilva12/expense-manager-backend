@@ -1,72 +1,49 @@
+import { User } from '../models/User';
+import { IUser } from '../types/User';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import UserModel from '../models/UserModel';
-import { IUser, IUserLoginResponse } from '../types/User';
 
-class UserService {
-  async createUser(userData: IUser): Promise<void> {
-    const { email, password, name } = userData;
-
-    const existingUser = await UserModel.findByEmail(email);
+export class UserService {
+  static async createUser(userData: Omit<IUser, 'id'>): Promise<IUser> {
+    const { email, password } = userData;
+    
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
-      throw new Error('E-mail já registrado.');
+      throw new Error('User already exists');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    await UserModel.create({
+    const user = new User({
       ...userData,
-      password: hashedPassword,
-      balance: 0,
+      password: hashedPassword
     });
+
+    await user.save();
+    return user.toObject();
   }
 
-  async getUserByEmail(email: string): Promise<IUser | null> {
-    const user = await UserModel.findByEmail(email);
-    if (!user) {
-      throw new Error('Usuário não encontrado.');
-    }
-    return user;
+  static async getUserById(id: string): Promise<IUser | null> {
+    const user = await User.findById(id);
+    return user ? user.toObject() : null;
   }
 
-  async loginUser(email: string, password: string): Promise<{ token: string; user: any }> {
-    const user = await UserModel.findByEmail(email);
+  static async authenticateUser(email: string, password: string): Promise<string> {
+    const user = await User.findOne({ email });
     if (!user) {
-      throw new Error('Usuário não encontrado.');
+      throw new Error('Invalid credentials');
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new Error('Senha incorreta.');
+      throw new Error('Invalid credentials');
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'defaultsecret', {
-      expiresIn: '1d',
-    });
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '24h' }
+    );
 
-    return {
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        balance: user.balance,
-      },
-    };
-  }
-
-  async getUserById(id: string): Promise<any> {
-    try {
-      const user = await UserModel.findById(id);
-      if (!user) {
-        throw new Error('Usuário não encontrado.');
-      }
-      return user;
-    } catch (error) {
-      console.error('Error in getUserById:', error);
-      throw error;
-    }
+    return token;
   }
 }
-
-export default new UserService();

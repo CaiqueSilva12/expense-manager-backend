@@ -1,84 +1,63 @@
 import { Request, Response } from 'express';
-import UserService from '../services/UserService';
+import { UserService } from '../services/UserService';
 import { IUser } from '../types/User';
 
 class UserController {
-  async createUser(req: Request, res: Response): Promise<void> {
+  static async createUser(req: Request, res: Response) {
     try {
-      const userData: IUser = req.body;
-      await UserService.createUser(userData);
-
-      res.status(201).json({
-        message: 'Usuário criado com sucesso!',
+      const { name, email, password } = req.body;
+      const user = await UserService.createUser({ 
+        name, 
+        email, 
+        password,
+        balance: 0 
       });
-    } catch (error: any) {
-      res.status(400).json({
-        error: error.message,
-      });
-    }
-  }
-
-  async getUserByEmail(req: Request, res: Response): Promise<void> {
-    const { email } = req.params;
-
-    try {
-      const user = await UserService.getUserByEmail(email);
-      res.status(200).json({
-        name: user.name,
-        email: user.email,
-        balance: user.balance,
-      });
+      return res.status(201).json(user);
     } catch (error) {
-      res.status(404).json({ message: error.message });
+      if (error instanceof Error) {
+        return res.status(400).json({ message: error.message });
+      }
+      return res.status(500).json({ message: 'Internal server error' });
     }
   }
 
-  async loginUser(req: Request, res: Response): Promise<void> {
+  static async getUserById(req: Request, res: Response) {
     try {
-      const { email, password } = req.body;
-      console.log('Login request:', { email }); // Debug log
-
-      const { token, user } = await UserService.loginUser(email, password);
-      console.log('Login response from service:', { token, user }); // Debug log
-
-      res.status(200).json({
-        message: 'Login bem-sucedido!',
-        token,
-        user,
-      });
-    } catch (error: any) {
-      console.error('Login error:', error); // Debug log
-      res.status(400).json({
-        error: error.message,
-      });
-    }
-  }
-
-  async getUserById(req: Request, res: Response): Promise<void> {
-    try {
-      const { id } = req.params;
-      console.log('Get user by ID request:', { id }); // Debug log
-
-      const user = await UserService.getUserById(id);
-      console.log('Get user by ID response:', { user }); // Debug log
-
-      if (!user) {
-        res.status(404).json({ message: 'Usuário não encontrado.' });
-        return;
+      const userId = req.userId;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
       }
 
-      res.status(200).json({
+      const user = await UserService.getUserById(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      return res.json({
         name: user.name,
         email: user.email,
-        balance: user.balance,
+        balance: user.balance
       });
-    } catch (error: any) {
-      console.error('Get user by ID error:', error); // Debug log
-      res.status(400).json({
-        error: error.message,
-      });
+    } catch (error) {
+      if (error instanceof Error) {
+        return res.status(400).json({ message: error.message });
+      }
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+
+  static async loginUser(req: Request, res: Response) {
+    try {
+      const { email, password } = req.body;
+      const token = await UserService.authenticateUser(email, password);
+      return res.json({ token });
+    } catch (error) {
+      if (error instanceof Error) {
+        return res.status(401).json({ message: error.message });
+      }
+      return res.status(500).json({ message: 'Internal server error' });
     }
   }
 }
 
-export default new UserController();
+export default UserController;

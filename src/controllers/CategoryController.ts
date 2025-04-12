@@ -1,36 +1,63 @@
 import { Request, Response } from 'express';
-import CategoryModel from '../models/CategoryModel';
+import { CategoryModel } from '../models/CategoryModel';
 import { ICategory } from '../types/Category';
+import mongoose from 'mongoose';
 
 class CategoryController {
-  static async createCategory(req: Request, res: Response): Promise<void> {
+  static async createCategory(req: Request, res: Response) {
     try {
-      const { name, budget, userId } = req.body;
-      const category = await CategoryModel.create({ name, budget, userId });
-      res.status(201).json(category);
+      const { name, type } = req.body;
+      const userId = new mongoose.Types.ObjectId(req.userId);
+      
+      const category = await CategoryModel.create({ 
+        name, 
+        user: userId,
+        type 
+      });
+      
+      return res.status(201).json(category);
     } catch (error) {
-      res.status(500).json({ error: 'Failed to create category' });
+      if (error instanceof Error) {
+        return res.status(400).json({ message: error.message });
+      }
+      return res.status(500).json({ message: 'Internal server error' });
     }
   }
 
-  static async getUserCategories(req: Request, res: Response): Promise<void> {
+  static async getUserCategories(req: Request, res: Response) {
     try {
-      const { userId } = req.params;
-      const categories = await CategoryModel.findByUserId(userId);
-      res.status(200).json(categories);
+      const userId = new mongoose.Types.ObjectId(req.userId);
+      const categories = await CategoryModel.getUserCategories(userId);
+      return res.json(categories);
     } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch categories' });
+      if (error instanceof Error) {
+        return res.status(400).json({ message: error.message });
+      }
+      return res.status(500).json({ message: 'Internal server error' });
     }
   }
 
-  static async updateCategoryBudget(req: Request, res: Response): Promise<void> {
+  static async updateCategory(req: Request, res: Response) {
     try {
-      const { categoryId } = req.params;
-      const { budget } = req.body;
-      const category = await CategoryModel.updateBudget(categoryId, budget);
-      res.status(200).json(category);
+      const { id } = req.params;
+      const { name, type } = req.body;
+      
+      const category = await CategoryModel.findByIdAndUpdate(
+        id,
+        { name, type },
+        { new: true }
+      );
+      
+      if (!category) {
+        return res.status(404).json({ message: 'Category not found' });
+      }
+      
+      return res.json(category);
     } catch (error) {
-      res.status(500).json({ error: 'Failed to update category budget' });
+      if (error instanceof Error) {
+        return res.status(400).json({ message: error.message });
+      }
+      return res.status(500).json({ message: 'Internal server error' });
     }
   }
 }
