@@ -1,65 +1,67 @@
 import { Request, Response } from 'express';
-import { CategoryModel } from '../models/CategoryModel';
+import CategoryModel from '../models/CategoryModel';
 import { ICategory } from '../types/Category';
-import mongoose from 'mongoose';
 
-class CategoryController {
-  static async createCategory(req: Request, res: Response) {
+export class CategoryController {
+  static async createCategory(req: Request, res: Response): Promise<void> {
     try {
-      const { name, type } = req.body;
-      const userId = new mongoose.Types.ObjectId(req.userId);
-      
-      const category = await CategoryModel.create({ 
-        name, 
-        user: userId,
-        type 
-      });
-      
-      return res.status(201).json(category);
+      const categoryData: ICategory = req.body;
+      const category = await CategoryModel.create(categoryData);
+      res.status(201).json(category);
     } catch (error) {
-      if (error instanceof Error) {
-        return res.status(400).json({ message: error.message });
-      }
-      return res.status(500).json({ message: 'Internal server error' });
+      res.status(500).json({ message: 'Error creating category' });
     }
   }
 
-  static async getUserCategories(req: Request, res: Response) {
+  static async getCategories(req: Request, res: Response): Promise<void> {
     try {
-      const userId = new mongoose.Types.ObjectId(req.userId);
-      const categories = await CategoryModel.getUserCategories(userId);
-      return res.json(categories);
+      const categories = await CategoryModel.find();
+      res.json(categories);
     } catch (error) {
-      if (error instanceof Error) {
-        return res.status(400).json({ message: error.message });
-      }
-      return res.status(500).json({ message: 'Internal server error' });
+      res.status(500).json({ message: 'Error fetching categories' });
     }
   }
 
-  static async updateCategory(req: Request, res: Response) {
+  static async getCategoryById(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params;
-      const { name, type } = req.body;
-      
+      const category = await CategoryModel.findById(req.params.id);
+      if (!category) {
+        res.status(404).json({ message: 'Category not found' });
+        return;
+      }
+      res.json(category);
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching category' });
+    }
+  }
+
+  static async updateCategory(req: Request, res: Response): Promise<void> {
+    try {
       const category = await CategoryModel.findByIdAndUpdate(
-        id,
-        { name, type },
+        req.params.id,
+        req.body,
         { new: true }
       );
-      
       if (!category) {
-        return res.status(404).json({ message: 'Category not found' });
+        res.status(404).json({ message: 'Category not found' });
+        return;
       }
-      
-      return res.json(category);
+      res.json(category);
     } catch (error) {
-      if (error instanceof Error) {
-        return res.status(400).json({ message: error.message });
-      }
-      return res.status(500).json({ message: 'Internal server error' });
+      res.status(500).json({ message: 'Error updating category' });
     }
   }
-}
 
-export default CategoryController; 
+  static async deleteCategory(req: Request, res: Response): Promise<void> {
+    try {
+      const category = await CategoryModel.findByIdAndDelete(req.params.id);
+      if (!category) {
+        res.status(404).json({ message: 'Category not found' });
+        return;
+      }
+      res.json({ message: 'Category deleted successfully' });
+    } catch (error) {
+      res.status(500).json({ message: 'Error deleting category' });
+    }
+  }
+} 
