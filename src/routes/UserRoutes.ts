@@ -1,21 +1,11 @@
 import { Router } from 'express';
-import UserController from '../controllers/UserController';
+import { UserController } from '../controllers/UserController';
 import { authenticateToken } from '../middlewares/authMiddleware';
 
-class UserRoutes {
-  public router: Router;
+const router = Router();
 
-  constructor() {
-    this.router = Router();
-    this.initializeRoutes();
-  }
+router.post('/register', UserController.createUser);
+router.post('/login', UserController.loginUser);
+router.get('/profile', authenticateToken, UserController.getUserById);
 
-  private initializeRoutes(): void {
-    this.router.post('/users', UserController.createUser);
-    this.router.get('/users/email/:email', authenticateToken, UserController.getUserByEmail);
-    this.router.post('/login', UserController.loginUser);
-    this.router.get('/users/id/:id', authenticateToken, UserController.getUserById);
-  }
-}
-
-export default new UserRoutes().router;
+export default router;
