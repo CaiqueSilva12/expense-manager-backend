@@ -5,6 +5,7 @@
     "files": true
   },
   "compilerOptions": {
+    "types": ["node"],
     "target": "es2016",
     "module": "commonjs",
     "rootDir": "./src",
