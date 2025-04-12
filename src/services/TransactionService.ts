@@ -7,7 +7,8 @@ class TransactionService {
   async createTransaction(transactionData: ITransaction): Promise<void> {
     const { user, type, amount, description, month, year } = transactionData;
   
-    const userToUpdate = await UserModel.findById(user);
+    const userObjectId = new mongoose.Types.ObjectId(user);
+    const userToUpdate = await UserModel.findById(userObjectId);
   
     if (!userToUpdate) {
       throw new Error('Usuário não encontrado');
@@ -24,7 +25,7 @@ class TransactionService {
       balanceChange = -amount;
     }
   
-    await UserModel.updateBalance(user, balanceChange);
+    await UserModel.updateBalance(userObjectId, balanceChange);
   }
   
 

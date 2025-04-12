@@ -8,4 +8,5 @@ export interface ITransaction {
   description: string;
   month: number;
   year: number;
+  date: Date;
 }

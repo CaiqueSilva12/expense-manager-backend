@@ -12,8 +12,9 @@ class UserRoutes {
 
   private initializeRoutes(): void {
     this.router.post('/users', UserController.createUser);
-    this.router.get('/users/:email', authenticateToken, UserController.getUserByEmail);
+    this.router.get('/users/email/:email', authenticateToken, UserController.getUserByEmail);
     this.router.post('/login', UserController.loginUser);
+    this.router.get('/users/id/:id', authenticateToken, UserController.getUserById);
   }
 }
 

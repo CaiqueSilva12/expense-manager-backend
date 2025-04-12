@@ -19,6 +19,7 @@ class TransactionModel {
         description: { type: String, required: true },
         month: { type: Number, required: true },
         year: { type: Number, required: true },
+        date: { type: Date, required: true },
       },
       {
         timestamps: true,

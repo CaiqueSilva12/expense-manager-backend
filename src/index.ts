@@ -4,6 +4,7 @@ import cors from 'cors';
 import Database from './config/Database';
 import UserRoutes from './routes/UserRoutes';
 import TransactionRoutes from './routes/TransactionRoutes';
+import CategoryRoutes from './routes/CategoryRoutes';
 
 class App {
   private app: Application;
@@ -11,7 +12,7 @@ class App {
 
   constructor() {
     this.app = express();
-    this.port = Number(process.env.PORT) || 3000;
+    this.port = Number(process.env.PORT) || 3001;
 
     this.middlewares();
     this.routes();
@@ -26,6 +27,7 @@ class App {
   private routes(): void {
     this.app.use('/api', UserRoutes);
     this.app.use('/api', TransactionRoutes);
+    this.app.use('/api', CategoryRoutes);
   }
 
   private async database(): Promise<void> {

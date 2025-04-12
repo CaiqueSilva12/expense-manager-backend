@@ -29,33 +29,43 @@ class UserService {
     return user;
   }
 
-  async loginUser(email: string, password: string): Promise<{ token: string; user: IUserLoginResponse }> {
+  async loginUser(email: string, password: string): Promise<{ token: string; user: any }> {
     const user = await UserModel.findByEmail(email);
     if (!user) {
       throw new Error('Usuário não encontrado.');
     }
-    
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new Error('Senha inválida.');
+      throw new Error('Senha incorreta.');
     }
 
-    const token = jwt.sign(
-      { userId: user._id, email: user.email },
-      process.env.JWT_SECRET || 'defaultsecret',
-      { expiresIn: '1h' }
-    );
-
-    const userResponse: IUserLoginResponse = {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-    };
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'defaultsecret', {
+      expiresIn: '1d',
+    });
 
     return {
       token,
-      user: userResponse,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        balance: user.balance,
+      },
     };
+  }
+
+  async getUserById(id: string): Promise<any> {
+    try {
+      const user = await UserModel.findById(id);
+      if (!user) {
+        throw new Error('Usuário não encontrado.');
+      }
+      return user;
+    } catch (error) {
+      console.error('Error in getUserById:', error);
+      throw error;
+    }
   }
 }
 
