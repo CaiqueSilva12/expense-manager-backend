@@ -1,48 +1,17 @@
-import mongoose, { Model, Schema, Document } from 'mongoose';
+import mongoose, { Document, Model } from 'mongoose';
 import { ITransaction } from '../types/Transaction';
 
-interface ITransactionDocument extends ITransaction, Document {
-  _id: mongoose.Types.ObjectId;
-}
+interface ITransactionModel extends ITransaction, Document {}
 
-class TransactionModel {
-  private schema: Schema;
-  private model: Model<ITransactionDocument>;
+const transactionSchema = new mongoose.Schema({
+  description: { type: String, required: true },
+  amount: { type: Number, required: true },
+  type: { type: String, enum: ['revenue', 'expense'], required: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
+  date: { type: Date, default: Date.now }
+});
 
-  constructor() {
-    this.schema = new Schema<ITransactionDocument>(
-      {
-        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-        type: { type: String, enum: ['revenue', 'expense'], required: true },
-        category: { type: String },
-        amount: { type: Number, required: true },
-        description: { type: String, required: true },
-        month: { type: Number, required: true },
-        year: { type: Number, required: true },
-        date: { type: Date, required: true },
-      },
-      {
-        timestamps: true,
-      }
-    );
+const Transaction: Model<ITransactionModel> = mongoose.model<ITransactionModel>('Transaction', transactionSchema);
 
-    this.model = mongoose.model<ITransactionDocument>('Transaction', this.schema);
-  }
-
-  async createTransaction(transactionData: ITransaction): Promise<ITransactionDocument> {
-    const transaction = await this.model.create(transactionData);
-    return transaction;
-  }
-
-  async getUserTransactions(userId: mongoose.Types.ObjectId, month: number, year: number): Promise<ITransactionDocument[]> {
-    const transactions = await this.model.find({
-      user: userId,
-      month,
-      year,
-    }).sort({ createdAt: -1 });
-
-    return transactions;
-  }
-}
-
-export default new TransactionModel();
+export default Transaction;
