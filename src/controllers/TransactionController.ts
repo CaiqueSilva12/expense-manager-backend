@@ -30,9 +30,8 @@ class TransactionController {
       }
 
       const userObjectId = new mongoose.Types.ObjectId(userId);
-
       const transactions = await TransactionService.getUserTransactions(
-        userObjectId,
+        userObjectId.toString(),
         parseInt(month as string),
         parseInt(year as string)
       );
@@ -47,5 +46,5 @@ class TransactionController {
     }
   }
 }
-
 export default new TransactionController();
+
