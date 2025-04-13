@@ -1,16 +1,16 @@
 {
   "compilerOptions": {
-    "types": ["node"],
     "target": "es2016",
     "module": "commonjs",
     "rootDir": "./src",
     "outDir": "./dist",
-    "moduleResolution": "node",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": false,
     "noImplicitAny": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "types": ["node"]
   },
-  "exclude": ["./coverage", "./dist", "__tests__", "jest.config.ts"]
+  "exclude": ["dist", "coverage", "__tests__"]
 }
