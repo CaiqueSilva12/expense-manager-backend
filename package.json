@@ -2,13 +2,13 @@
   "name": "server",
   "version": "1.0.0",
   "description": "",
-  "main": "index.ts",
+  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
-    "build": "npx tsc",
-    "postinstall": "npm install @types/node"
+    "build": "npm install typescript && ./node_modules/.bin/tsc",
+    "postinstall": "npm install @types/node @types/express @types/cors @types/jsonwebtoken @types/bcryptjs"
   },
   "keywords": [],
   "author": "",
